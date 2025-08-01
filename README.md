@@ -30,6 +30,7 @@ CSS3: For all styling, including Flexbox, Grid, and custom properties.
 Vanilla JavaScript: For all logic, including API calls with async/await and DOM manipulation.
 
 WeatherAPI.com: As the source for all weather data.
+Deployment : Vercel 
 
 ## ⚙️ How to Set Up and Run Locally
 To run this project on your local machine, follow these simple steps:
