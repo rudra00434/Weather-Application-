@@ -38,7 +38,7 @@ Clone the repository:
 
 Bash
 
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/rudra00434/Weather_Application.js.git
 Get your API Key:
 
 Visit WeatherAPI.com and sign up for a free API key.
