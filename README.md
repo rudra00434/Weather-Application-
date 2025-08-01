@@ -38,10 +38,10 @@ To run this project on your local machine, follow these simple steps:
 Clone the repository:
 
 Bash
-
+```
 git clone https://github.com/rudra00434/Weather_Application.js.git
 Get your API Key:
-
+```
 Visit WeatherAPI.com and sign up for a free API key.
 
 Add the API Key to the project:
