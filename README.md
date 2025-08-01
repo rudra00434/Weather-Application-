@@ -71,5 +71,10 @@ Improve UI/UX with animations and dark mode
 
 # 🤝 Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+# App visuals
+<img width="980px" height="875px" alt="Screenshot (161)" src="https://github.com/user-attachments/assets/274070a8-7fb6-4f5e-8f76-32b834bf351c" />
+
+
+<img width="980px" height="865" alt="Screenshot (160)" src="https://github.com/user-attachments/assets/354bc021-ade4-42d8-85ac-b6e74fac2fc9" />
 
 
