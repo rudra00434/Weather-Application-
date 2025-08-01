@@ -59,5 +59,16 @@ Open in Browser:
 
 Simply open the index.html file in your favorite web browser. That's it!
 
-## 📜 License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+# 💡 Future Improvements
+Show weather for user’s current location using Geolocation API
+
+Toggle between Celsius and Fahrenheit
+
+Add 7-day weather forecast
+
+Improve UI/UX with animations and dark mode
+
+# 🤝 Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+
