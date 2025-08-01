@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Weather App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Styling */
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #e0e0e0;
+            --font-color: #1a1a1a;
+            --card-bg: rgba(255, 255, 255, 0.15);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-color: rgba(255, 255, 255, 0.3);
+            --loader-color: var(--primary-color);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            padding: 20px;
+        }
+
+        .weather-app {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #city-input {
+            flex-grow: 1;
+            border: none; outline: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        #city-input::placeholder {
+            color: var(--secondary-color);
+            font-weight: 400;
+        }
+
+        #search-btn {
+            border: none; outline: none;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: var(--hover-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        #search-btn:hover { background: rgba(255, 255, 255, 0.5); }
+        #search-btn svg { width: 20px; height: 20px; fill: var(--primary-color); }
+        
+        
+        .loader-container {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .loader {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--loader-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container p {
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #city-name { font-size: 36px; font-weight: 600; margin-bottom: 5px; }
+        #local-time { font-size: 14px; font-weight: 400; color: var(--secondary-color); margin-bottom: 20px; }
+        .main-weather { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+        #weather-icon { width: 120px; height: 120px; margin: -10px 0; }
+        #temperature { font-size: 70px; font-weight: 700; line-height: 1; }
+        #condition { font-size: 24px; font-weight: 500; text-transform: capitalize; }
+
+        .extra-details {
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        
+        .detail-item .icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--secondary-color);
+        }
+        
+        .detail-item .value { font-size: 18px; font-weight: 600; }
+        .detail-item .label { font-size: 12px; color: var(--secondary-color); }
+        
+        
+        .aqi-value {
+            padding: 3px 10px;
+            border-radius: 50px;
+            color: #000;
+            font-weight: 600;
+        }
+        .aqi-good { background-color: #A8E05F; }
+        .aqi-moderate { background-color: #FDD74B; }
+        .aqi-unhealthy-sensitive { background-color: #FF9B57; color: #fff;}
+        .aqi-unhealthy { background-color: #FE6A69; color: #fff;}
+        .aqi-very-unhealthy { background-color: #A97ABC; color: #fff;}
+        .aqi-hazardous { background-color: #A06A7B; color: #fff;}
+        
+        .weather-container, .error-container, .loader-container { display: none; }
+        
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="weather-app">
+        <div class="search-container">
+            <input type="text" id="city-input" placeholder="Enter city name...">
+            <button id="search-btn">
+                <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
+            </button>
+        </div>
+        
+        <div class="loader-container" id="loader-container">
+            <div class="loader"></div>
+        </div>
+
+        <div class="error-container" id="error-container">
+            <p id="error-message"></p>
+        </div>
+
+        <div class="weather-container" id="weather-container">
+            <div class="main-info" style="text-align: center;">
+                <h2 id="city-name"></h2>
+                <p id="local-time"></p>
+                <div class="main-weather">
+                    <img id="weather-icon" src="" alt="Weather Icon">
+                    <h1 id="temperature"></h1>
+                    <p id="condition"></p>
+                </div>
+            </div>
+
+            <div class="extra-details">
+                <div class="detail-item">
+                    <svg class="icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5a.5.5 0 0 1 .5.5v9.438l4.243-4.242a.5.5 0 0 1 .707.707L8.707 12.15a.5.5 0 0 1-.707 0L3.257 7.414a.5.5 0 1 1 .707-.707L8.207 11.44V2a.5.5 0 0 1-.5-.5z"/><path d="M8 0a1.5 1.5 0 0 1 1.5 1.5v10.518l4.427-4.427a1.5 1.5 0 0 1 2.121 2.121L10.364 15.44a1.5 1.5 0 0 1-2.121 0L2.557 9.757a1.5 1.5 0 0 1 2.121-2.121L8.105 12.018V1.5A1.5 1.5 0 0 1 9.5 0z"/></svg>
+                    <span class="value" id="feels-like"></span>
+                    <span class="label">Feels Like</span>
+                </div>
+                <div class="detail-item">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M192 512C86 512 0 426 0 320C0 228.8 130.2 57.7 166.6 11.7C172.6 4.2 181.5 0 191.1 0h1.8c9.6 0 18.5 4.2 24.5 11.7C253.8 57.7 384 228.8 384 320c0 106-86 192-192 192zM96 336c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 37.3 19.4 69.8 48.3 87.5C90.2 411.5 96 394.4 96 376V336z"/></svg>
+                    <span class="value" id="humidity"></span>
+                    <span class="label">Humidity</span>
+                </div>
+                <div class="detail-item">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M128 32C92.7 32 64 60.7 64 96v32c0 35.3 28.7 64 64 64H297.8c-2.4-8.8-3.8-18.1-3.8-27.8c0-48.9 27.6-91.4 68.8-112.4C333.1 32.8 293.4 16 249.8 16H128C75 16 32 59 32 112v32c0 4.4 3.6 8 8 8s8-3.6 8-8V112c0-44.2 35.8-80 80-80h1.5c3.2 0 6.3 .1 9.4 .4c-2.7 5.3-4.9 10.9-6.3 16.8c-1.5-1-3-2-4.6-2.9c-2.2-.9-4.5-1.7-6.9-2.3c-2.6-.6-5.3-1-8.1-1.2V32zM448 128c-53 0-96 43-96 96s43 96 96 96h128c35.3 0 64-28.7 64-64s-28.7-64-64-64H448zM0 352c0-35.3 28.7-64 64-64H576c35.3 0 64 28.7 64 64s-28.7 64-64 64H64c-35.3 0-64-28.7-64-64z"/></svg>
+                    <span class="value"id="wind-speed"></span>
+                    <span class="label">Wind</span>
+                </div>
+                <div class="detail-item">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M14.2 39.1C2.1 23.3 0 8.2 0 0L24.5 0C24.5 3.3 25.1 6.6 26.5 9.8L2.2 39.1zM512 0c0 8.2-2.1 23.3-14.2 39.1L485.5 9.8c1.4-3.2 2-6.5 2-9.8L512 0zM256 32a224 224 0 1 1 0 448 224 224 0 1 1 0-448zM162.3 193.8c-10.4-16.3-25.5-29.2-42.9-37.1L134.1 214c3.4 .8 6.7 1.8 9.9 3.1c14.2 5.9 26.8 15.2 35.8 28.1l-17.5-51.4zM321.6 288.5c-15.5 12-34.3 18.5-54.2 18.5c-16.7 0-32.9-4.5-47.3-13.1l17.5 51.4c10.4 16.3 25.5 29.2 42.9 37.1l-14.7-57.2c3.4-.8 6.7-1.8 9.9-3.1c14.2-5.9 26.8-15.2 35.8-28.1l17.5 51.4c10.4-16.3 25.5-29.2 42.9-37.1l-14.7 57.2c3.4 .8 6.7 1.8 9.9 3.1c14.2 5.9 26.8 15.2 35.8 28.1L393 256.4c-9-12.9-21.6-22.2-35.8-28.1c-3.2-1.3-6.5-2.3-9.9-3.1l14.7-57.2c-17.4 7.9-32.5 20.8-42.9 37.1l-17.5-51.4z"/></svg>
+                    <span class="value" id="aqi-value"></span>
+                    <span class="label">AQI</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic
+        const apiKey = '226ecf6b41f14008890212718250108';
+        const apiUrl = 'https://api.weatherapi.com/v1/current.json';
+
+        // DOM Elements
+        const cityInput = document.getElementById('city-input');
+        const searchBtn = document.getElementById('search-btn');
+        const loaderContainer = document.getElementById('loader-container');
+        const errorContainer = document.getElementById('error-container');
+        const errorMessage = document.getElementById('error-message');
+        const weatherContainer = document.getElementById('weather-container');
+        
+        // Data display elements
+        const cityNameEl = document.getElementById('city-name');
+        const localTimeEl = document.getElementById('local-time');
+        const weatherIconEl = document.getElementById('weather-icon');
+        const temperatureEl = document.getElementById('temperature');
+        const conditionEl = document.getElementById('condition');
+        const feelsLikeEl = document.getElementById('feels-like');
+        const humidityEl = document.getElementById('humidity');
+        const windSpeedEl = document.getElementById('wind-speed');
+        const aqiValueEl = document.getElementById('aqi-value');
+
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            getWeather('Bardhaman');
+        });
+
+        const getWeather = async (city) => {
+            weatherContainer.style.display = 'none';
+            errorContainer.style.display = 'none';
+            loaderContainer.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${apiUrl}?key=${apiKey}&q=${city}&aqi=yes`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error.message || 'City not found.');
+                }
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                loaderContainer.style.display = 'none';
+            }
+        };
+
+        const updateUI = (data) => {
+            const { location, current } = data;
+
+            cityNameEl.textContent = `${location.name}, ${location.country}`;
+            const localDateTime = new Date(location.localtime);
+            localTimeEl.textContent = `Local Time: ${localDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+            weatherIconEl.src = `https:${current.condition.icon}`;
+            weatherIconEl.alt = current.condition.text;
+            temperatureEl.innerHTML = `${Math.round(current.temp_c)}&deg;C`;
+            conditionEl.textContent = current.condition.text;
+            
+            feelsLikeEl.innerHTML = `${Math.round(current.feelslike_c)}&deg;C`;
+            humidityEl.textContent = `${current.humidity}%`;
+            windSpeedEl.textContent = `${current.wind_kph} km/h`;
+
+            
+            const aqi = current.air_quality['us-epa-index'];
+            const aqiInfo = getAqiInfo(aqi);
+            aqiValueEl.textContent = aqiInfo.text;
+            aqiValueEl.className = 'value aqi-value';
+            aqiValueEl.classList.add(aqiInfo.className);
+
+
+            weatherContainer.style.display = 'block';
+            weatherContainer.classList.add('fade-in');
+            
+            setTimeout(() => weatherContainer.classList.remove('fade-in'), 500);
+        };
+
+        
+        const getAqiInfo = (index) => {
+            switch (index) {
+                case 1: return { text: 'Good', className: 'aqi-good' };
+                case 2: return { text: 'Moderate', className: 'aqi-moderate' };
+                case 3: return { text: 'Unhealthy*', className: 'aqi-unhealthy-sensitive' };
+                case 4: return { text: 'Unhealthy', className: 'aqi-unhealthy' };
+                case 5: return { text: 'Very Unhealthy', className: 'aqi-very-unhealthy' };
+                case 6: return { text: 'Hazardous', className: 'aqi-hazardous' };
+                default: return { text: 'Unknown', className: '' };
+            }
+        };
+
+        const displayError = (message) => {
+            errorMessage.textContent = `⚠️ ${message}`;
+            errorContainer.style.display = 'block';
+        };
+
+        searchBtn.addEventListener('click', () => {
+            const city = cityInput.value.trim();
+            if (city) getWeather(city);
+        });
+        
+        cityInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') searchBtn.click();
+        });
+
+    </script>
+</body>
+</html>
