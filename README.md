@@ -40,7 +40,7 @@ Clone the repository:
 Bash
 ```
 git clone https://github.com/rudra00434/Weather_Application.js.git
-Get your API Key:
+Get your API Key:Weather api.com
 ```
 Visit WeatherAPI.com and sign up for a free API key.
 
